@@ -2,6 +2,10 @@
 # VARIABLES
 ###############################################################################
 
+variable "user_public_key" {
+  default = ""
+}
+
 # VPN
 
 variable "aws_region" {
@@ -73,7 +77,7 @@ provider "aws" {
 
 resource "aws_key_pair" "deployer" {
   key_name   = "terraform-deployer-key"
-  public_key = file(var.ssh_public_key_path)
+  public_key = var.user_public_key != "" ? var.user_public_key : file(var.ssh_public_key_path)
 }
 
 resource "aws_security_group" "vpn" {
@@ -128,6 +132,7 @@ resource "aws_instance" "vpn" {
 
   vpc_security_group_ids = [
     aws_security_group.vpn.id,
+    aws_security_group.proxy.id,
     aws_security_group.ssh.id,
     aws_security_group.outgoing.id,
   ]
