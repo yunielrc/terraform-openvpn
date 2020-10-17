@@ -1,0 +1,10 @@
+user_public_key="<your-public-key>"
+connection_use_agent=true
+
+# VPN
+# vpn_port=1194
+
+# PROXY
+# proxy_port=3128
+proxy_user="<your-proxy-user>"
+proxy_password="<your-proxy-password>"
