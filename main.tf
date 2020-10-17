@@ -181,9 +181,11 @@ resource "aws_instance" "vpn" {
       "docker volume create --name ${local.vpn_data}",
       "docker run -v ${local.vpn_data}:/etc/openvpn --rm kylemanna/openvpn:${var.vpn_image_tag} ovpn_genconfig -u udp://${self.public_ip}",
       "yes 'yes' | docker run -v ${local.vpn_data}:/etc/openvpn --rm -i kylemanna/openvpn:${var.vpn_image_tag} ovpn_initpki nopass",
-      "docker run --restart always -v ${local.vpn_data}:/etc/openvpn -d -p ${var.vpn_port}:1194/udp --cap-add=NET_ADMIN kylemanna/openvpn:${var.vpn_image_tag}",
+      "docker run --name openvpn --restart always -v ${local.vpn_data}:/etc/openvpn -d -p ${var.vpn_port}:1194/udp --cap-add=NET_ADMIN kylemanna/openvpn:${var.vpn_image_tag}",
       "docker run -v ${local.vpn_data}:/etc/openvpn --rm -it kylemanna/openvpn:${var.vpn_image_tag} easyrsa build-client-full ${local.vpn_client_name} nopass",
       "docker run -v ${local.vpn_data}:/etc/openvpn --rm kylemanna/openvpn:${var.vpn_image_tag} ovpn_getclient ${local.vpn_client_name} > ~/${local.vpn_client_name}.ovpn",
+      "docker exec openvpn sh -c 'echo \"duplicate-cn\" >> /etc/openvpn/openvpn.conf'",
+      "docker restart openvpn",
       "sed -i 's/1194 udp/${var.vpn_port} udp/' ~/${local.vpn_client_name}.ovpn"
     ]
   }
